@@ -2,22 +2,17 @@ package Item;
 
 import java.awt.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import Interfaces.Debuggable;
 import Entity.*;
 import GameMap.*;
 import Interfaces.Observable;
-import Interfaces.Observer;
 
 public abstract class Item extends Observable implements Serializable, Debuggable {
 
     /**
-     * debug függvény
-     */
-    public abstract String debug();
-
+	 * Serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
 
     /**
      * Az Item.Item egyedi azonosítója
@@ -31,13 +26,13 @@ public abstract class Item extends Observable implements Serializable, Debuggabl
     /**
      * Kép
      */
-    protected Image image;
+    protected transient Image image;
 
     /**
      * Konstruktor, beállítja az ID változót
      * @param aID - A tárgy ID-ja
      */
-    public Item(int aID){
+    protected Item(int aID){
         ID = aID;
     }
 
@@ -81,6 +76,7 @@ public abstract class Item extends Observable implements Serializable, Debuggabl
      */
     public void setDurability(int aDurability){
         durability = aDurability;
+        this.notifyObservers();
     }
 
     /**
@@ -97,14 +93,14 @@ public abstract class Item extends Observable implements Serializable, Debuggabl
      * @param i A másik tárgy, amivel összekapcsolódik
      * @return False, mivel csak a Transistornál lesz értelme, ott lesz override-olva.
      */
-    abstract public boolean connect(Item i, Entity ent);
+    public abstract boolean connect(Item i, Entity ent);
 
     /**
      * Két tárgy szétkapcsolására szolgáló függvény. Alapesetben “false” értékkel tér vissza ha a két adott tárgy nem tud szétkapcsolódni.
      * @param i A tárgy párja, amit szét szeretnénk kapcsolni a tárgytól.
      * @return False, mivel csak a Transistornál lesz értelme, ott lesz override-olva.
      */
-    abstract public boolean disconnect(Item i);
+    public abstract boolean disconnect(Item i);
 
     /**
      * Két tranzisztor összekapcsolására hivatott függvény
@@ -112,14 +108,14 @@ public abstract class Item extends Observable implements Serializable, Debuggabl
      * @param e az Entitás akié
      * @return sikeres volt-e a kapcsolás
      */
-    abstract public boolean TransistorConnect(Transistor t, Entity e);
+    public abstract boolean TransistorConnect(Transistor t, Entity e);
 
     /**
      * Két tranzisztor szétkapcsolására hivatott függvény
      * @param t tranzisztor amit szét akarunk kapcsolni
      * @return sikeres volt-e a szétkapcsolás
      */
-    abstract public boolean TransistorDisconnect(Transistor t);
+    public abstract boolean TransistorDisconnect(Transistor t);
 
     /**
      * Amennyiben nincs felüldefiniálva a metódus az adott örökös tárgy osztályban akkor “false” értékkel tér vissza. 
@@ -186,6 +182,10 @@ public abstract class Item extends Observable implements Serializable, Debuggabl
     	//Üres, hiszen a tárgyak többsége nem végez műveletet normál szobába lépés során.
     }
 
+    /**
+     * A tárgy vizuális megjelenítéséhez használt kép gettere.
+     * @return A tárgy vizuális megjelenítéséhez használt kép.
+     */
     public Image getImage() {
         return image;
     }

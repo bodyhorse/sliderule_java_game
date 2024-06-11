@@ -53,7 +53,8 @@ public abstract class Entity extends Observable implements Serializable , Debugg
      */
     protected boolean roundIsOver;
 
-    protected Image image;
+
+    protected transient Image image;
 
     /**
      * Konstruktor
@@ -261,14 +262,32 @@ public abstract class Entity extends Observable implements Serializable , Debugg
      * @return - True, ha belefér az inventoryba, False hogyha pedig nem fér bele
      */
     public boolean pickUpItem(Item item){
-
         if(!canPickUp(item.getID())) {
             return false;
         }
 
-
         //Remove from room
         Item it = currentRoom.removeItem(item);
+        if (it != null){
+            addItem(it);
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * A hamis logarléc felvételekor való nyerés megakadájoázást hívatott implementálni
+     * @param fSlideRule item
+     * @return mindig false
+     */
+    public boolean pickUpItem(FakeSlideRule fSlideRule){
+        if(!canPickUp(fSlideRule.getID())) {
+            return false;
+        }
+
+        //Remove from room
+        Item it = currentRoom.removeItem(fSlideRule);
         if (it != null){
             addItem(it);
 
@@ -767,5 +786,19 @@ public abstract class Entity extends Observable implements Serializable , Debugg
 
     public Image getImage() {
         return image;
+    }
+
+    /**
+     * Visszaad egy tárgy objektumot az ID-je alapján.
+     * Ha a tárgy nincs benne az entity inventoryában, akkor null értékkel tér vissza.
+     * @param id - a kapott ID
+     * @return - a tárgy objektum / null ha nincs ilyen
+     */
+    public Item itemById(int id) {
+        for(Item item: inventory){
+            if(item.getID() == id)
+                return item;
+        }
+        return null;
     }
 }

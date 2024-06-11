@@ -20,9 +20,10 @@ public class DialougeView extends JPanel{
     public JScrollPane logPane;
     public Entity curEntity;
     public String newMString;
+    public String lastPrinted;
 
     public DialougeView(){
-        curEntity = GameController.getInstance().currentEntity;
+        curEntity = GameController.getInstance().getCurrentEntity();
         this.setLayout(new BorderLayout());
         //the text area for the commands
         txt = new JTextArea();
@@ -34,20 +35,25 @@ public class DialougeView extends JPanel{
         logPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         this.setPreferredSize(new Dimension(200,512));
         this.add(logPane,BorderLayout.CENTER);
+        this.update();
     }
 
     public void update() {
     //checking whether we moved or the update was just a text call
-    if(GameController.getInstance().currentEntity != curEntity){
-        //if the entity is changed, that means that we changed to another entity, so the console has to be cleaned
-        //selecting all text then replacing it with an empty string (𝓪𝓶𝓪𝔃𝓲𝓷𝓰, i know)
-        txt.selectAll();
-        txt.replaceSelection("");
-        curEntity = GameController.getInstance().currentEntity;
-        return;
-    }
+        if(GameController.getInstance().getCurrentEntity() != curEntity){
+            //if the entity is changed, that means that we changed to another entity, so the console has to be cleaned
+            //selecting all text then replacing it with an empty string (𝓪𝓶𝓪𝔃𝓲𝓷𝓰, i know)
+            txt.selectAll();
+            txt.replaceSelection("");
+            curEntity = GameController.getInstance().getCurrentEntity();
+            return;
+        }
         //if the entity stayed the same, the update was just a console message
         newMString = GameController.getInstance().lastOutMessage;
-        txt.append(newMString + '\n');
+        if(!newMString.equals(lastPrinted)){
+            txt.append(newMString);
+            lastPrinted = newMString;
+        }
+        
     }
 }

@@ -12,6 +12,11 @@ import javax.swing.ImageIcon;
 public class AirFreshner extends Item implements Debuggable, Serializable {
 
     /**
+	 * Default serial ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Konstruktor
      * @param AFID - a légfirssítő egyedi ID-ja
      */
@@ -19,7 +24,7 @@ public class AirFreshner extends Item implements Debuggable, Serializable {
         super(AFID);
         GameController.getInstance().debuggableObjects.put(AFID, this);
         setDurability(1);
-        image = new ImageIcon("rsc/airFreshener.png").getImage();
+        image = new ImageIcon("./rsc/airFreshener.png").getImage();
     }
 
     /**
@@ -29,6 +34,7 @@ public class AirFreshner extends Item implements Debuggable, Serializable {
      * @param e - A tárgyat használó Entity.Entity.
      * @return - False, a használható tárgyaknál felül kell definiálni.
      */
+    @Override
     public boolean use(Room r, Entity e){
         r.makeNotToxic();
         int d = this.getDurability();
@@ -61,15 +67,14 @@ public class AirFreshner extends Item implements Debuggable, Serializable {
      * @return - A String
      */
     public String toString(){
-        return "Item.AirFreshner: #" + Integer.toString(getID());
+        return "AirFreshner #" + Integer.toString(getID());
     }
 
-
-    @Override
     /**
      * Debug szöveg generálása
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Air Freshener " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Air Freshener " + this.getID() + " ----\n";
     }

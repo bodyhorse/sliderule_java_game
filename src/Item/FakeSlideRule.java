@@ -1,7 +1,6 @@
 package Item;
 
 import java.io.Serializable;
-import GameMap.*;
 import Entity.*;
 import GameLogic.*;
 import Interfaces.Debuggable;
@@ -10,6 +9,11 @@ import Interfaces.Debuggable;
 public class FakeSlideRule extends SlideRule implements Debuggable, Serializable {
 
     /**
+	 * Serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * Konstruktor, beállítja az ID változót
      * @param fSID - A tárgy ID-ja
      */
@@ -43,15 +47,16 @@ public class FakeSlideRule extends SlideRule implements Debuggable, Serializable
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
-    public String toString(){
-        return "Item.SlideRule: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "SlideRule #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
-     * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.FakeSlideRule " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Item.FakeSlideRule " + this.getID() + " ----\n";
     }

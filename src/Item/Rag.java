@@ -1,9 +1,7 @@
 package Item;
 
 import GameLogic.*;
-import GameMap.*;
 import Entity.*;
-import Item.*;
 import Interfaces.*;
 
 import java.io.Serializable;
@@ -11,7 +9,13 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 
 public class Rag extends Item implements Decaying, Debuggable, Serializable {
-    /**
+    
+	/**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * A tárgy aktívitását jelző logikai érték
      */
     private boolean isActive;
@@ -24,7 +28,7 @@ public class Rag extends Item implements Decaying, Debuggable, Serializable {
         super(aID);
         setDurability(5);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("rsc/rag.png").getImage();
+        image = new ImageIcon("./rsc/rag.png").getImage();
     }
 
     /**
@@ -82,24 +86,26 @@ public class Rag extends Item implements Decaying, Debuggable, Serializable {
      * A rongy tanárra gyakorolt eszmélet vesztési képességének logikai értéke
      * @return - ha a rongy aktiv és van benne még töltet akkor "true" értékkel tér vissza ellenkező esetben "false"
      */
+    @Override
     public boolean ableToStun(){
-        if(isActive && getDurability() > 0) return true;
-        return false;
+        return (isActive && getDurability() > 0);
     }
 
     /**
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
-    public String toString(){
-        return "Item.Rag: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "Rag #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
      * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.Rag " + this.getID() + " ----\ndurability : " + getDurability() + "\nisActive : " + isActive +"\n---- Item.Rag " + this.getID() + " ----\n";
     }

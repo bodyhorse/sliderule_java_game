@@ -8,9 +8,6 @@ import Item.Item;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-
-import GameMap.*;
 import Entity.*;
 import GameLogic.*;
 
@@ -125,13 +122,19 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
      * isToxic alapvető setter függvénye
      * @param t - beállítandó toxicitás logikai értéke
      */
-    public void setIsToxic(boolean t){ isToxic = t; }
+    public void setIsToxic(boolean t){ 
+    	isToxic = t;
+    	this.notifyObservers();
+    }
 
     /**
      * Beállítja az isToxic logikai értéket a kapott int alapján
      * @param state - amennyiben 0, hamis amennyiben 1 igaz értéket állít be a függvény
      */
-    public void setIsToxic(int state){ isToxic = state == 1; }
+    public void setIsToxic(int state){ 
+    	isToxic = state == 1;
+    	if(isToxic) this.notifyObservers();
+    }
 
     /**
      * A szoba összeovlasztás szüzeiességének logikai értékét vissza adó getter függvény
@@ -233,6 +236,7 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
     public void addItem(Item i){
         containedItems.add(i);
         i.addObserver(this);
+        this.notifyObservers();
     }
 
     /**
@@ -245,6 +249,7 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
             return null;
         containedItems.remove(i);
         i.removeObserver(this);
+        this.notifyObservers();
         return i;
     }
     
@@ -292,13 +297,13 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
      */
     public boolean acceptEntity(Entity ent){
     	
-    	//Abban az esetben ha az Entity.Entity a maradás mellett döntött.
+    	//Abban az esetben ha az Entity a maradás mellett döntött.
     	if(entitiesInside.contains(ent)) {
     		
     		if(isToxic) ent.toxicate();
     		else ent.enteredNormal();
 
-    		GameController.getInstance().statusMsg(311, "GameMap.Room:" + String.valueOf(getID()));
+    		GameController.getInstance().statusMsg(311, "Room:" + String.valueOf(getID()));
     		return true;
     		
     	}else if(capacity > (entitiesInside.size() + waitingToEnter.size())) {
@@ -311,11 +316,11 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
 			
     		entityEntered();
     		
-    		GameController.getInstance().statusMsg(312, "GameMap.Room:" + String.valueOf(getID()));
+    		GameController.getInstance().statusMsg(312, "Room:" + String.valueOf(getID()));
     		return true;
     	}
     	
-    	GameController.getInstance().errorMsg(301, "GameMap.Room:" + String.valueOf(ID));
+    	GameController.getInstance().errorMsg(301, "Room:" + String.valueOf(ID));
     	return false; 
     	
     }
@@ -343,19 +348,29 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
      * Hozzá ad egy entitást a szobában lévő entitások listjához
      * @param ent - hozzá adandó entitás
      */
-    public void addEntity(Entity ent){ entitiesInside.add(ent); }
+    public void addEntity(Entity ent){ 
+    	entitiesInside.add(ent); 
+    	ent.addObserver(this);
+    }
 
     /**
      * Eltávoltít egy entitás a szobában lévő entitások listjából
      * @param ent -eltávolítandó entitás
      */
-    public void removeEntity(Entity ent){ entitiesInside.remove(ent); }
+    public void removeEntity(Entity ent){
+    	entitiesInside.remove(ent);
+    	ent.removeObserver(this);
+    	this.notifyObservers();
+    }
 
     /**
      * Hozzáad egy Entityt a szolbába belépésre várakozók listábába
      * @param ent A hozzáadandó Entity.Entity
      */
-    public void addToQueue(Entity ent) { waitingToEnter.add(ent); }
+    public void addToQueue(Entity ent) { 
+    	waitingToEnter.add(ent); 
+    	ent.addObserver(this);
+    }
 
     /**
      * Mérgezővé teszi a szobát
@@ -456,8 +471,7 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
      * @return - vissza adja a nagyobb kapacitás értékét
      */
     public int myCapacity(int myCap){
-        int res = Math.max(myCap,this.getCapacity());
-        return res;
+        return Math.max(myCap,this.getCapacity());
     }
 
     /**
@@ -667,27 +681,25 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
         if(pickupResult) GameController.getInstance().statusMsg(211, input[1]);
         return pickupResult;
     }
-    @Override
+    
     /**
      * Debug szöveg generálása
      * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         String retVal =  "---- GameMap.Room " + this.getID() + " ----\nisToxic : " + isToxic + "\nisMerged : " + isMerged +"\nisSticky : " + isSticky + "\ncapacity : " + capacity + "\nhasBeenCleaned : " + hasBeenCleaned + "\nentitiesSinceCleanup : " + entitiesSinceCleanup + "\ncontainedItems :\n" ;
         
         for(Item i: containedItems){
-            // deprecated retVal += "\n - "+ i.getClass().getName()+ " " + i.getID();
             retVal +=  i.debug();
         }
         retVal += "entitiesInside :\n";
         for(Entity e: entitiesInside){
-            //deprecated retVal += "\n - "+ e.getClass().getName()+ " " + e.getID();
             retVal +=  e.debug();
         }
         retVal += "doors :\n";
         for(Door d: doors){
-            //retVal += "\n - GameMap.Door "+ d.getID();
             retVal += d.debug();
         }
         retVal += "---- GameMap.Room " + this.getID() + " ----\n";
@@ -695,8 +707,39 @@ public class Room extends Observable implements Debuggable, Serializable, Observ
         return retVal;
     }
 
+    /**
+     * Ha bármilyen a szoba által figyelt objektum állapota frissül,
+     * a szoba ezt a jelzést továbbadja az őt figyelő observereknek.
+     */
     @Override
     public void update() {
         notifyObservers();
+    }
+
+    /**
+     * Visszaad egy tárgy objektumot az ID-je alapján.
+     * Ha a tárgy nincs a szoba tárgyai között, akkor null értékkel tér vissza.
+     * @param id - a kapott ID
+     * @return - a tárgy objektum / null ha nincs ilyen
+     */
+    public Item itemById(int id) {
+        for(Item item: containedItems) {
+            if(item.getID() == id)
+                return item;
+        }
+        return null;
+    }
+
+    /**
+     * Visszaadja az entityt az ID-je alapján. Ha nincs, akkor nullt ad vissza
+     * @param id - az ID
+     * @return - az entity / null
+     */
+    public Entity entityById(int id){
+        for(Entity entity: entitiesInside) {
+            if(entity.getID() == id)
+                return entity;
+        }
+        return null;
     }
 }

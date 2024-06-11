@@ -11,6 +11,11 @@ import javax.swing.*;
 public class SlideRule extends Item implements Debuggable, Serializable {
 
     /**
+	 * Serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Az osztály konstruktora, beállítja a tárgy ID-ját.
      * @param aID - A tárgy ID-ja.
      */
@@ -18,7 +23,7 @@ public class SlideRule extends Item implements Debuggable, Serializable {
         super(aID);
         setDurability(1);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("logarlec/rsc/sliderule2.png").getImage();
+        image = new ImageIcon("./rsc/sliderule2.png").getImage();
     }
 
     /**
@@ -45,15 +50,16 @@ public class SlideRule extends Item implements Debuggable, Serializable {
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
-    public String toString(){
-        return "Item.SlideRule: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "SlideRule #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
-     * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.SlideRule " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Item.SlideRule " + this.getID() + " ----\n";
     }

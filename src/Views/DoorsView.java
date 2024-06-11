@@ -1,10 +1,14 @@
 package Views;
 
 import GameMap.Room;
-import Interfaces.Observer;
+import Entity.Entity;
+import Item.*;
 import ViewModels.DoorsViewModel;
 
 import javax.swing.*;
+
+import GameLogic.GameController;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -31,10 +35,16 @@ public class DoorsView extends JPanel{
     private Room currentRoom;
 
     /**
+     * Az diák akinek éppen a köre van
+     */
+    private Entity currentStudent;
+
+    /**
      * Konstruktor
      * @param currRoom A szoba amelynek ajtajit ábrázolni kell
      */
     public DoorsView(Room currRoom) {
+        doorList = new JComboBox<>();
         currentRoom = currRoom;
         refreshDoors();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS)); // Set vertical BoxLayout
@@ -52,6 +62,7 @@ public class DoorsView extends JPanel{
         doorList.setAlignmentX(Component.CENTER_ALIGNMENT);
         chooseButton.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 20, 10));
         this.add(verticalBox);
     }
 
@@ -89,10 +100,34 @@ public class DoorsView extends JPanel{
      * amennyiben nem üres előtte kis is törli ezután hozzá adja amit a szobában talál.
      */
     public void refreshDoors(){
+        //refreshing model
+        currentStudent = GameController.getInstance().getCurrentEntity();
+    	currentRoom = GameController.getInstance().getCurrentEntity().getCurrentRoom();
+        int usableTransistor = studCanTeleport();
+
+        //refreshing string list
         if(!doors.isEmpty()) doors.clear();
+        doors.add("Stay");
         for (int i = 0; i < currentRoom.getDoors().size(); i++) {
-            doors.add("Door #" + String.valueOf(currentRoom.getDoors().get(i).getID()));
+            doors.add("Door #" + currentRoom.getDoors().get(i).getID());
         }
-        doorList = new JComboBox<>(doors.toArray(new String[0]));
+        if(usableTransistor != -1) doors.add("Transistor #" + usableTransistor);
+
+        //refreshing comboBox
+        DefaultComboBoxModel<String> tempModel = new DefaultComboBoxModel<>(doors.toArray(new String[0]));
+        doorList.setModel(tempModel);
+    }
+
+    /**
+     * Eldönti, hogy tud-e a diák teleportálni
+     * @return Amennyiben a diáknál összekapcsolt, használt tranzisztor van vissza adja az ID-ját, ellenkező esetben -1-et
+     */
+    private int studCanTeleport(){
+        for(Item it : currentStudent.getInventory()){
+            if(it.getPair() != null){
+               if(it.getPair().getPair().getTeleport() != "") return it.getID();
+            }
+        }
+        return -1;
     }
 }

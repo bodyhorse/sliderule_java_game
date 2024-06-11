@@ -7,11 +7,19 @@ import javax.swing.ImageIcon;
 import GameLogic.*;
 import GameMap.*;
 import Entity.*;
-import Item.*;
 import Interfaces.*;
 
 public class Beer extends Item implements Decaying, Debuggable, Serializable {
-    private boolean isActive;
+    
+	/**
+	 * Serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * Logikai értéke annak, hogy a sör aktiválásra került-e.
+	 */
+	private boolean isActive;
 
     /**
      * Az osztály konstruktora, beállítja a tárgy ID-ját.
@@ -21,7 +29,7 @@ public class Beer extends Item implements Decaying, Debuggable, Serializable {
         super(aID);
         setDurability(5);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("rsc/beer.png").getImage();
+        image = new ImageIcon("./rsc/beer.png").getImage();
     }
 
     /**
@@ -38,6 +46,7 @@ public class Beer extends Item implements Decaying, Debuggable, Serializable {
      */
     public void setIsActive(boolean b){
         isActive = b;
+        this.notifyObservers();
     }
 
     /**
@@ -49,14 +58,14 @@ public class Beer extends Item implements Decaying, Debuggable, Serializable {
     @Override
     public boolean use(Room r, Entity e){
         if(isActive) return false;
-        this.setIsActive(true);
+        this.setIsActive(true);GameController.getInstance().addDecayingItem(this);
         return true;
     }
 
     /**
      * A függvény célja, hogy a saját referenciájával tudja meghívni a paraméterként kapott Entity.Entity “pickUpItem” rá vonatkozó változtatát. (visitor pattern)
-     * @param e - Az Entity.Entity, aki felveszi a sört.
-     * @return - Az Entity.Entity erre a tárgyra használt pickUpItem függvényének visszatérési értéke.
+     * @param e - Az Entity, aki felveszi a sört.
+     * @return - Az Entity erre a tárgyra használt pickUpItem függvényének visszatérési értéke.
      */
     @Override
     public boolean pickUp(Entity e) {
@@ -65,8 +74,8 @@ public class Beer extends Item implements Decaying, Debuggable, Serializable {
 
     /**
      * A függvény célja, hogy a saját referenciájával tudja meghívni a paraméterként kapott Entity.Entity “dropItem” rá vonatkozó változtatát. (visitor pattern)
-     * @param e - Az Entity.Entity, aki lerakja a sört.
-     * @return - Az Entity.Entity erre a tárgyra használt drop() függvényének visszatérési értéke.
+     * @param e - Az Entity, aki lerakja a sört.
+     * @return - Az Entity erre a tárgyra használt drop() függvényének visszatérési értéke.
      */
     @Override
     public boolean drop(Entity e) {
@@ -87,7 +96,7 @@ public class Beer extends Item implements Decaying, Debuggable, Serializable {
      */
     @Override
     public void age() {
-        if (isActive){
+        if (isActive && getDurability() > 0){
             setDurability(getDurability() - 1);
         }
     }
@@ -111,14 +120,14 @@ public class Beer extends Item implements Decaying, Debuggable, Serializable {
      * @return - A String
      */
     public String toString(){
-        return "Item.Beer: #" + Integer.toString(getID());
+        return "Beer #" + Integer.toString(getID());
     }
-    @Override
+    
     /**
      * Debug szöveg generálása
-     * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.Beer " + this.getID() + " ----\ndurability : " + getDurability() + "\nisActive : " + isActive + "\n---- Item.Beer " + this.getID() + " ----\n";
     }

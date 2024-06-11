@@ -30,6 +30,11 @@ public class GameController extends Observable implements Serializable, Observer
      */
     private static GameController instance;
     
+    /**
+     * A játék grafikus megjelenítéséért felelős keret.
+     */
+    private GameView gameView;
+    
     
     /************************
 	 ********Gameplay******** 
@@ -54,7 +59,7 @@ public class GameController extends Observable implements Serializable, Observer
     /**
      * A játék futása közben épp soron lévő Entity.Entity referenciája
      */
-    public Entity currentEntity;
+    private Entity currentEntity;
     
     /**
 	 * A játékban szereplő összes Enitiy listája
@@ -76,7 +81,7 @@ public class GameController extends Observable implements Serializable, Observer
     private Map map;
     
     /******************************
-	 ********GameLogic.GameController********
+	 ********GameController********
 	 ******************************/
     
     //----------------Collections---------------------
@@ -117,6 +122,11 @@ public class GameController extends Observable implements Serializable, Observer
      * Logikai értéke annak, hogy a játék tesztelési módban fut-e
      */
     public boolean testmode;
+    
+    /**
+     * Logikai értéke annak, hogy a játék grafikus módban fut-e.
+     */
+    private boolean guiMode;
     
     /**
      * Logikai érték annak, hogy a játékban az Entityket kézzel irányítjuk-e
@@ -184,6 +194,7 @@ public class GameController extends Observable implements Serializable, Observer
 
         gameStarted = false;
         testmode = false;
+        guiMode = false;
         manualInputMode = false;
         gameIsOver = false;
 
@@ -269,6 +280,41 @@ public class GameController extends Observable implements Serializable, Observer
     }
     
     /**
+     * Visszatér a gáték megjelenítéséért felelős kerettel.
+     * @return A játék megjelenítéséért felelős keret.
+     */
+    public GameView getGameView() {
+    	return gameView;
+    }
+    
+    /**
+     * Beállítja a játék grafius megjelenítési módjának logikai értékét
+     * @param bool a beállítandó logikai érték. Ha igaz, a játék grafikus módan fut.
+     */
+    public void setGuiMode(boolean bool) {
+    	guiMode = bool;
+    }
+    
+    /**
+     * Visszatér annak logikai értékével, hogy a játék grafikus megjelenítési 
+     * müdban fut-e
+     * @return guiMode logikai értéke
+     */
+    public boolean getGuiMode() {return guiMode;}
+    
+    /**
+     * Visszatér az éppen soron lévő karakter referenciájával.
+     * @return Az éppen soron lévő karakter referenciája.
+     */
+    public Entity getCurrentEntity() {
+    	return currentEntity;
+    }
+    
+    public void setCurrentEntity(Entity currEntity) {
+    	currentEntity = currEntity;
+    }
+    
+    /**
      * Visszatér a soron következő teszt paranccsal
      * @return - a következő teszt parancs
      */
@@ -313,7 +359,26 @@ public class GameController extends Observable implements Serializable, Observer
      * Entity.Entity hozzáaadására használt függgvény
      * @param nEntity - a hozzáadandó entity
      */
-    public void addEntity(Entity nEntity){ entities.add(nEntity); }
+    public void addEntity(Entity nEntity){ 
+    	entities.add(nEntity);
+    }
+    
+    /**
+     * Játékos eltávolítására használt metódus
+     * @param nEntity Eltávolítandó játékos.
+     */
+    public void removeEntity(Entity nEntity) {
+    	boolean removed = entities.remove(nEntity);
+    }
+    
+    /**
+     * Visszaadja a regisztrált karakterek közül a paraméterül átadott indexediket
+     * @param i a keresett Entity indexe
+     * @return A kiválasztott Entity referenciája
+     */
+    public Entity getEntityAt(int i) {
+    	return entities.get(i);
+    }
     
     /**
      * Megnöveli a lélekkel már nem rendelkező diákok számát.
@@ -348,6 +413,7 @@ public class GameController extends Observable implements Serializable, Observer
      */
     public void println(String outPut){
         lastOutMessage = outPut;
+        gameView.update();
         if(printToConsole){
             System.out.println(outPut);
         }
@@ -374,6 +440,7 @@ public class GameController extends Observable implements Serializable, Observer
      */
     public void print(String outPut){
         lastOutMessage = outPut;
+        gameView.update();
         if(printToConsole){
             System.out.println(outPut);
         }
@@ -394,14 +461,17 @@ public class GameController extends Observable implements Serializable, Observer
     }
 
     /**
-     * Grafikus indításra szolgáló függvény
+     * Grafikus felület indításra szolgáló függvény
      */
     public void initGui(){
-        GameView frame = new GameView();
-        frame.setVisible(true);
-        frame.pack();
-        frame.revalidate();
-        frame.repaint();
+        this.gameView = new GameView();
+        this.addObserver(gameView);
+        this.setGuiMode(true);
+        this.testmode = false;
+        gameView.setVisible(true);
+        gameView.pack();
+        gameView.revalidate();
+        gameView.repaint();
     }
 
     /**
@@ -493,24 +563,28 @@ public class GameController extends Observable implements Serializable, Observer
      * A játék megnyerését kezelő metódus
      */
     public void gameWon(){
-        println("""
-                
-                                
-                ____    ____  ______    __    __     ____    __    ____  __  .__   __.  __ \s
-                \\   \\  /   / /  __  \\  |  |  |  |    \\   \\  /  \\  /   / |  | |  \\ |  | |  |\s
-                 \\   \\/   / |  |  |  | |  |  |  |     \\   \\/    \\/   /  |  | |   \\|  | |  |\s
-                  \\_    _/  |  |  |  | |  |  |  |      \\            /   |  | |  . `  | |  |\s
-                    |  |    |  `--'  | |  `--'  |       \\    /\\    /    |  | |  |\\   | |__|\s
-                    |__|     \\______/   \\______/         \\__/  \\__/     |__| |__| \\__| (__)\s
-                                                                                           \s
-                                
-                """);
-        if(testmode)
-            terminal("debug 0");
-        println("[The students have found the sliderule! GG WP!]\nPress enter to continue>");
         gameIsOver = true;
-        if(manualInputMode || !testmode) scanner.nextLine();
-
+    	
+    	if(guiMode) {
+    		gameView.guiGameWon();
+    	}else {
+    		println("""
+                    
+                    
+                    ____    ____  ______    __    __     ____    __    ____  __  .__   __.  __ \s
+                    \\   \\  /   / /  __  \\  |  |  |  |    \\   \\  /  \\  /   / |  | |  \\ |  | |  |\s
+                     \\   \\/   / |  |  |  | |  |  |  |     \\   \\/    \\/   /  |  | |   \\|  | |  |\s
+                      \\_    _/  |  |  |  | |  |  |  |      \\            /   |  | |  . `  | |  |\s
+                        |  |    |  `--'  | |  `--'  |       \\    /\\    /    |  | |  |\\   | |__|\s
+                        |__|     \\______/   \\______/         \\__/  \\__/     |__| |__| \\__| (__)\s
+                                                                                               \s
+                                    
+                    """);
+            if(testmode)
+                terminal("debug 0");
+            println("[The students have found the sliderule! GG WP!]\nPress enter to continue>");
+            if(manualInputMode || !testmode) scanner.nextLine();
+    	}
     }
     
     /**
@@ -520,21 +594,29 @@ public class GameController extends Observable implements Serializable, Observer
      * 1 - lejártak a körök.
      */
     public void gameLost(int type){
-    	println(""" 
-    			   _____                         ____                 
-    			  / ____|                       / __ \\                
-    			 | |  __  __ _ _ __ ___   ___  | |  | |_   _____ _ __ 
-    			 | | |_ |/ _` | '_ ` _ \\ / _ \\ | |  | \\ \\ / / _ \\ '__|
-    			 | |__| | (_| | | | | | |  __/ | |__| |\\ V /  __/ |   
-    			  \\_____|\\__,_|_| |_| |_|\\___|  \\____/  \\_/ \\___|_|                                      
-    			""");
-    	if(testmode)
-            terminal("debug 0");
-    	String message = (type == 0) ? "[The teachers achieved their goal, all students have lost their soul!]" : "[The students couldn’t find the slide rule in time.]";
-    	println(message);
+    	
+     	gameIsOver = true;
+    	
+    	if(guiMode) {
+    		gameView.guiGameLost(type);
+    	}else {
+    		println(""" 
+     			   _____                         ____                 
+     			  / ____|                       / __ \\                
+     			 | |  __  __ _ _ __ ___   ___  | |  | |_   _____ _ __ 
+     			 | | |_ |/ _` | '_ ` _ \\ / _ \\ | |  | \\ \\ / / _ \\ '__|
+     			 | |__| | (_| | | | | | |  __/ | |__| |\\ V /  __/ |   
+     			  \\_____|\\__,_|_| |_| |_|\\___|  \\____/  \\_/ \\___|_|                                      
+     			""");
+     	if(testmode)
+             terminal("debug 0");
+     	String message = (type == 0) ? "[The teachers achieved their goal, all students have lost their soul!]" : "[The students couldn’t find the slide rule in time.]";
+     	println(message);
         println("Press enter to continue>");
-    	gameIsOver = true;
-    	if(manualInputMode || !testmode) scanner.nextLine();
+     	if(manualInputMode || !testmode) scanner.nextLine();
+    	}
+    	
+    	
     }
     
     /**
@@ -951,7 +1033,7 @@ public class GameController extends Observable implements Serializable, Observer
      */
     public void runGame(){
     	if(gameIsOver) return;
-    	
+
         random.setSeed(1);
        
         for(int i = 0; i < remainingRounds; i++){
@@ -1012,7 +1094,7 @@ public class GameController extends Observable implements Serializable, Observer
     
     
      /********************************
- 	 ********GameMap.Map manipulation*********
+ 	 ********Map manipulation*********
  	 *********************************/
 
     /**
@@ -1032,6 +1114,7 @@ public class GameController extends Observable implements Serializable, Observer
         currentEntity = null;
         map = new Map(0);
         globalID = 1;
+        gameStarted = false;
     }
 
     /**
@@ -1106,7 +1189,7 @@ public class GameController extends Observable implements Serializable, Observer
     public void addplayer(){
         String[] split = lastInput.split(" ");
 
-        if (split.length == 1){
+        if (split.length <= 1){
             errorMsg(0,"");
             return;
         }
@@ -1123,7 +1206,17 @@ public class GameController extends Observable implements Serializable, Observer
         }
 
         int id = getNextGlobalID();
-        String n = split[1];
+        String n;
+        if(split.length > 2){
+            n = split[1];
+            for(int i = 2; i < split.length; i++){
+                n += " " + split[i];
+            }
+        }
+        else {
+            n = split[1];
+        }
+
 
         //már van ilyen nevű játékos
         for (int i = 0; i < entities.size(); i++){
@@ -1246,6 +1339,7 @@ public class GameController extends Observable implements Serializable, Observer
                 errorMsg(103, "");
                 return;
             }
+            
 
             //Ha ide eljutottunk, akkor mehet az indítás
             //Átadott string készítése
@@ -1256,6 +1350,7 @@ public class GameController extends Observable implements Serializable, Observer
                 message += "\t-" + section + "\n";
             }
 
+            countOfPlayers = entities.size();
             map = new Map(0);
             map.buildMap(3, 4);
             map.fillWithItems(4,2);
@@ -1268,9 +1363,13 @@ public class GameController extends Observable implements Serializable, Observer
 
             //Üzenet küldése
             statusMsg(114, message);
-
-            //Játék futtatása
-            runGame();
+            currentEntity = entities.get(0);
+            
+            if(guiMode) {
+            	gameView.showGame();
+            	newRoundPassive();
+            }else
+            	runGame();
         }
         //Ha teszt módban vagyunk
         else{
@@ -1463,9 +1562,11 @@ public class GameController extends Observable implements Serializable, Observer
     public void move(){
     	String[] tokenizedInput = lastInput.strip().split(" ");
     	
+    	boolean entityMoved = false;
+    	
     	if(tokenizedInput.length == 1) {
     		
-    		currentEntity.getCurrentRoom().initiateMove(-1, currentEntity);
+    		entityMoved = currentEntity.getCurrentRoom().initiateMove(-1, currentEntity);
     		
     	}else if(tokenizedInput.length > 2) {
     		
@@ -1475,13 +1576,16 @@ public class GameController extends Observable implements Serializable, Observer
     		
     		try {
     			int doorId = Integer.parseInt(tokenizedInput[1]);
-        		currentEntity.getCurrentRoom().initiateMove(doorId, currentEntity);
+        		entityMoved = currentEntity.getCurrentRoom().initiateMove(doorId, currentEntity);
         		
      		}catch (NumberFormatException e) {
      			
 				errorMsg(302, "DoorId: " + tokenizedInput[1]);
 			}
     	}
+    	
+    	if(entityMoved && guiMode)
+    		nextPlayerPassive();
     }
     
     /**
@@ -1526,7 +1630,10 @@ public class GameController extends Observable implements Serializable, Observer
             return;
         }
 
-        currentEntity.initiateTeleport(split);
+        boolean b = currentEntity.initiateTeleport(split);
+
+        if(b && guiMode)
+    		nextPlayerPassive();
     }
     
     /**
@@ -1583,6 +1690,7 @@ public class GameController extends Observable implements Serializable, Observer
         }
         catch (IOException ex){
             errorMsg(403, "");
+            ex.printStackTrace();
         }
     }
     
@@ -1592,6 +1700,7 @@ public class GameController extends Observable implements Serializable, Observer
      * Betöltési hiba esetén error üzenettel jelzi.
      */
     public void load(){
+        /*
         //Részekre daraboljuk az inputot, ha kevesebb mint kettő rész van, akkor error
         String[] splitInput = lastInput.split(" ");
         if(splitInput.length < 2) {
@@ -1610,9 +1719,13 @@ public class GameController extends Observable implements Serializable, Observer
             errorMsg(1, "");
             return;
         }
+        */
 
         //Ha itt vagyunk, akkor legalább a syntax jó
-        String fileName = splitInput[1] + ".ser";
+        //String fileName = splitInput[1] + ".ser";
+
+        String fileName = "mentes.ser";
+
         try{
             FileInputStream file = new FileInputStream(fileName);
             ObjectInputStream in = new ObjectInputStream(file);
@@ -1633,12 +1746,18 @@ public class GameController extends Observable implements Serializable, Observer
             globalID = (int) in.readObject();
 
 
-            statusMsg(412, splitInput[1]);
+            //statusMsg(412, splitInput[1]);
 
-            runGame();
+            //runGame();
+            if(guiMode) {
+                gameView.showGame();
+                newRoundPassive();
+            }else
+                runGame();
         }
         catch (IOException | ClassNotFoundException ex){
-            errorMsg(404, splitInput[1]);
+            ex.printStackTrace();
+            //errorMsg(404, splitInput[1]);
         }
 
     }
@@ -2448,8 +2567,91 @@ public class GameController extends Observable implements Serializable, Observer
 
     }
 
+    /**
+     * Ha a GameController által figyelt Subject-ek jelzik a változásokat
+     * ez továbbítja a jelzést a GameControllert megfigyelő Observerek számára.
+     */
     @Override
     public void update() {
         notifyObservers();
+    }
+    
+    
+    /* A prototípushoz készült játékhurok nagy mértékben épített arra, hogy a scanner segítségével várakozni lehet a felhasználói
+     * inputra. Swing gui megjelenítést hsználva erre nincs lehetőség, így szükségessé vált annak átdolgozása. A következő pár metódus
+     * űűködése megyegyezik az azonos nevű (Passive nélkül) metódusokéval, de lehetővé teszi a visszatérést minden command végén.*/
+    
+    /**
+     * A játék egy új fordulóját megnyitó metódus
+     */
+    public void newRoundPassive() {
+    	 if(gameIsOver || (remainingRounds <= 0)) {
+    		 gameLost(1);
+    		 return;
+    	 }
+	    	
+     	int countOfRooms = map.rooms.size();
+         	
+         if(countOfRooms >= 4 && !testmode) {
+         	 //Random mennyiségű szoba megátkozása
+             map.curseMany(random.nextInt(countOfRooms / 4));
+             	
+             	
+             //Random mennyiségű szoba splitelese
+             map.splitMany(random.nextInt(countOfRooms / 4));
+             	
+             	
+             	//Random mennyiségű szoba mergeelese
+             map.mergeMany(random.nextInt(countOfRooms / 4));
+         }
+         	
+         //Romlandó tárgyak öregítése egy körrel
+         ageAll();
+         	
+         //Új kör kezdetének jelzése a szobáknak
+         map.tickRooms();
+      
+       	//Új forduló esetén az első játékos következik.
+        setCurrentEntity(entities.get(0));
+        
+        remainingRounds--;
+         	
+        //Ha elfogytak a cselekvőképes játékosok, a játéknak vége
+        if(countOfPlayers == playersWithoutSoul) gameLost(0);
+    }
+    
+    /**
+     * A fordulón belül a soron következő karakternek adja át az irányítást
+     */
+    public void nextPlayerPassive() {
+    	int currentPlayerIndex = entities.indexOf(currentEntity);
+    	
+    	//Ha a jelenlegi játékos még stunolt, a róla elváltás csökkenti annak értékét
+    	if(currentEntity.getRemainingStun() > 0) getCurrentEntity().setRemainingStun(currentEntity.getRemainingStun() - 1);
+    	
+    	
+    	//Ha a következő játékos már nem diák, akkor az npc-k automatikus működése következik, majd
+    	//visszaváltunk az első játékosra
+    	if((currentPlayerIndex + 1) == countOfPlayers) {
+    		npcStepsPassive();
+    		newRoundPassive();
+    	}else {
+        	//A következő játékos karaktere beállításra kerül
+    		setCurrentEntity(entities.get(currentPlayerIndex + 1));
+    		println("Next player: " + currentEntity.getName());
+    	}
+    	
+    	notifyObservers();
+    }
+    
+    /**
+     * A játéban található összes npc körét végrahajtja azzal,
+     * hogy meghívja azoknak newEntRound metódusát melyben definiálva van
+     * azok önálló működése.
+     */
+    public void npcStepsPassive() {
+    	for(int i = countOfPlayers; i < entities.size(); ++i) {
+    		entities.get(i).newEntRound();
+    	}
     }
 }

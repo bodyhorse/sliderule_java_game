@@ -1,7 +1,6 @@
 package Item;
 
 import java.io.Serializable;
-import GameMap.*;
 import Entity.*;
 import GameLogic.*;
 import Interfaces.Debuggable;
@@ -10,6 +9,11 @@ import Interfaces.Debuggable;
 public class FakeMask extends Mask implements Debuggable, Serializable {
 
     /**
+	 * Serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * Konstruktor
      * @param fMID egyedi fakeMask azonosító
      */
@@ -55,26 +59,21 @@ public class FakeMask extends Mask implements Debuggable, Serializable {
     public boolean preventGasStun() {
         return false;
     }
-    
-    /**
-     * Az eredeti függvény felüldefiniálása üres függvényre, hiszen a fake itemnél ez nem csinál semmit.
-     */
-    @Override
-    public void carriedIntoNormalRoom() {}
 
     /**
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
-    public String toString(){
-        return "Item.Mask: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "Mask #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
-     * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.FakeMask " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Item.FakeMask " + this.getID() + " ----\n";
     }

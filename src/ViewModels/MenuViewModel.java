@@ -2,23 +2,54 @@ package ViewModels;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
+import Entity.Entity;
+import Entity.Student;
+import GameLogic.GameController;
+import GameMap.Room;
 import Interfaces.Observer;
 import Views.MenuView;
 import Views.GameView;
 
 public class MenuViewModel extends MenuView implements Observer {
+    /**
+     * Az új játék gomb ActionListenere.
+     */
     public ActionListener newGameActionListener;
+
+    /**
+     * A játék betöltése gomb ActionListenere.
+     */
     public ActionListener loadGameActionListener;
+
+    /**
+     * A játék indítását végző gomb ActionListenere.
+     */
     public ActionListener startActionListener;
+
+    /**
+     * A játékos hozzáadását végző gomb ActionListenere.
+     */
     public ActionListener addPlayListener;
+
+    /**
+     * A játékos eltávolítását végző gomb ActionListenere.
+     */
     public ActionListener removePlayListener;
 
+    /**
+     * Az osztály konstruktora.
+     * @param g - A játék GameView-ja.
+     */
     public MenuViewModel(GameView g){
-        super(g);
+    	//super(g);
+        super(GameController.getInstance().getGameView());
 
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(studentArray);
         removePlayerBox.setModel(model);
@@ -26,29 +57,41 @@ public class MenuViewModel extends MenuView implements Observer {
         newGameActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gv.remove(menuPanel);
-                gv.add(playerManagerPanel);
-                gv.revalidate();
+            	//gv.remove(menuPanel);
+            	//gv.add(playerManagerPanel);
+            	//gv.revalidate();
+                GameController.getInstance().getGameView().remove(menuPanel);
+                GameController.getInstance().getGameView().add(playerManagerPanel);
+                if (GameController.getInstance().gameStarted) GameController.getInstance().clearMap();
+                GameController.getInstance().getGameView().revalidate();
+                GameController.getInstance().getGameView().repaint();
             }           
         };
 
         loadGameActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO load game
+                GameController.getInstance().load();
+                //GameController.getInstance().terminal("start ");
+
+                if(GameController.getInstance().gameStarted)
+                    GameController.getInstance().getGameView().remove(menuPanel);
             } 
         };
-
-
 
         startActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                gv.remove(playerManagerPanel);
-                gv.showGame();
+
+                GameController.getInstance().terminal("start ");
+                
+                if(GameController.getInstance().gameStarted)
+            	    GameController.getInstance().getGameView().remove(playerManagerPanel);
             } 
         };
 
+        
+        //A GameController entities listához kell adni az itt létrehozott játékosokat
         addPlayListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -69,21 +112,26 @@ public class MenuViewModel extends MenuView implements Observer {
             } 
         };
 
+        //Itt meg a GameController entities listájából kell kitöröli a törlendő jatekosokat
         removePlayListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                studentList.remove(removePlayerBox.getSelectedIndex());
+                if(!studentList.isEmpty()) {
+                    studentList.remove(removePlayerBox.getSelectedIndex());
 
-                String[] temp = new String[studentList.size()];
+                    Entity entToRemove = GameController.getInstance().getEntityAt(removePlayerBox.getSelectedIndex());
+                    GameController.getInstance().removeEntity(entToRemove);
 
-                for (int i = 0; i < studentList.size(); i++){
-                    temp[i] = studentList.get(i);
-                }
+                    String[] temp = new String[studentList.size()];
 
-                studentArray = temp;
-                model.removeAllElements();
-                for (String student : studentList) {
-                    model.addElement(student);
+                    for (int i = 0; i < studentList.size(); i++) {
+                        temp[i] = studentList.get(i);
+                    }
+                    studentArray = temp;
+                    model.removeAllElements();
+                    for (String student : studentList) {
+                        model.addElement(student);
+                    }
                 }
             } 
         };
@@ -95,8 +143,11 @@ public class MenuViewModel extends MenuView implements Observer {
         removePlayerButton.addActionListener(removePlayListener);
     }
 
+    /**
+     * A képernyő frissítését végző absztrakt metódus felülírása.
+     */
     @Override
     public void update() {
-        
+
     }
 }

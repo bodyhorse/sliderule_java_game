@@ -7,12 +7,16 @@ import javax.swing.ImageIcon;
 import GameLogic.*;
 import GameMap.*;
 import Entity.*;
-import Item.*;
 import Interfaces.*;
 
 public class Camembert extends Item implements Debuggable, Serializable {
 
     /**
+	 * Serial version ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Az osztály konstruktora, beállítja a tárgy ID-ját.
      * @param aID - A tárgy ID-ja.
      */
@@ -20,7 +24,7 @@ public class Camembert extends Item implements Debuggable, Serializable {
         super(aID);
         setDurability(1);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("rsc/camembert.png").getImage();
+        image = new ImageIcon("./rsc/camembert.png").getImage();
     }
 
     /**
@@ -33,6 +37,9 @@ public class Camembert extends Item implements Debuggable, Serializable {
     public boolean use(Room r, Entity e){
         r.makeToxic();
         e.removeItem(this);
+        
+        this.notifyObservers(); //TODO nem biztos hogy kell ide
+        
         return true;
     }
 
@@ -61,14 +68,15 @@ public class Camembert extends Item implements Debuggable, Serializable {
      * @return - A String
      */
     public String toString(){
-        return "Item.Camembert: #" + Integer.toString(getID());
+        return "Camembert #" + Integer.toString(getID());
     }
-    @Override
+    
     /**
      * Debug szöveg generálása
      * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.Camembert " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Item.Camembert " + this.getID() + " ----\n";
     }

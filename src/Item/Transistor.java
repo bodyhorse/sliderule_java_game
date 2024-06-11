@@ -13,7 +13,13 @@ import GameLogic.*;
 
 
 public class Transistor extends Item implements Debuggable, Serializable {
-    /**
+    
+	/**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * A tranzisztor összekapcsolás során szerzett párja
      */
     private Transistor pair;
@@ -37,26 +43,25 @@ public class Transistor extends Item implements Debuggable, Serializable {
         super(aID);
         setDurability(1);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("rsc/transistor.png").getImage();
+        image = new ImageIcon("./rsc/transistor.png").getImage();
     }
 
     /**
      * A pair attribútum gettere
-     * @return - A pair attribútum értéke
+     * @return A pair attribútum értéke
      */
     @Override
     public Transistor getPair(){
-
-
         return pair;
     }
 
     /**
      * A pair attribútum settere
-     * @param t - A beállítandó pair érték
+     * @param t A beállítandó pair érték
      */
     public void setPair(Transistor t){
         pair = t;
+        this.notifyObservers();
     }
 
     /**
@@ -72,10 +77,7 @@ public class Transistor extends Item implements Debuggable, Serializable {
      * @param r - A beállítandó isPlaced érték
      */
     public Room setIsPlaced(Room r){
-
         isPlaced = r;
-
-
         return r;
     }
 
@@ -145,12 +147,10 @@ public class Transistor extends Item implements Debuggable, Serializable {
      * @return teleportálás sikerességének logikai értéke
      */
 
-    public boolean teleportTrough(Entity ent){
-
+    private boolean teleportTrough(Entity ent){
         if (this.isPlaced != null){
             isPlaced.acceptEntity(ent);
             this.pickUp(ent);
-
 
             return true;
         }
@@ -199,8 +199,9 @@ public class Transistor extends Item implements Debuggable, Serializable {
      * Visszatér egy Stringgel, az azonosítójával kiegészítve
      * @return - A String
      */
+    @Override
     public String toString(){
-        return "Tranzistor: #" + Integer.toString(getID());
+        return "Transistor #" + Integer.toString(getID());
     }
 
     /**
@@ -212,11 +213,12 @@ public class Transistor extends Item implements Debuggable, Serializable {
             return pair.isPlaced.toString();
         return "";
     }
-    @Override
+    
     /**
      * Debug szöveg generálása
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         String pairID;
         if(Objects.isNull(pair)){
@@ -258,6 +260,7 @@ public class Transistor extends Item implements Debuggable, Serializable {
         pair = t;
         t.TransistorConnect(this, e);
 
+        this.notifyObservers();
         return true;
     }
 
@@ -280,6 +283,7 @@ public class Transistor extends Item implements Debuggable, Serializable {
         owner = null;
         t.TransistorDisconnect(this);
 
+        this.notifyObservers();
         return true;
     }
 }

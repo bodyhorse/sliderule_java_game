@@ -2,16 +2,18 @@ package Entity;
 
 import GameLogic.*;
 import GameMap.*;
-import Entity.*;
 import Item.*;
-import Interfaces.*;
-
 import javax.swing.*;
 import java.io.Serializable;
 
 public class Student extends Entity implements Serializable {
 
     /**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Konstruktor, az ősosztály konstruktorát hívja meg
      * @param name - Név
      * @param id - ID
@@ -20,7 +22,7 @@ public class Student extends Entity implements Serializable {
     public Student(String name, int id, Room currentRoom){
         super(name, id, currentRoom);
         GameController.getInstance().debuggableObjects.put(id, this);
-        image = new ImageIcon("logarlec/rsc/resizedStudent.png").getImage();
+        image = new ImageIcon("./rsc/resizedStudent.png").getImage();
     }
 
     /**
@@ -41,7 +43,6 @@ public class Student extends Entity implements Serializable {
         GameController.getInstance().gameWon();
         return true;
     }
-
     /**
      * Item.Transistor táárgy felvételi logikája. Hogyha egy tranisztor le van téve egy másik
      * @param transistor - A tárgy amit fel akar venni.
@@ -128,7 +129,7 @@ public class Student extends Entity implements Serializable {
     	if(GameController.getInstance().gameIsOver) return false;
     	
     	roundIsOver = false;
-    	GameController.getInstance().currentEntity = this;
+    	GameController.getInstance().setCurrentEntity(this);
     	String playerInputString = null;
     	GameController gC = GameController.getInstance();
     	
@@ -148,8 +149,9 @@ public class Student extends Entity implements Serializable {
         		if(gC.testmode && !gC.manualInputMode)
         			gC.terminal(gC.nextTestLine());
         		else {
-        			playerInputString = gC.scanner.nextLine();
-            		gC.terminal(playerInputString);
+                    System.out.println(Thread.currentThread().getName());
+        			//playerInputString = gC.scanner.nextLine();
+            		//gC.terminal(playerInputString);
         		}
     		}
     	}while(!roundIsOver && !gC.gameIsOver);

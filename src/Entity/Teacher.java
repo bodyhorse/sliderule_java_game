@@ -2,10 +2,7 @@ package Entity;
 
 import GameLogic.*;
 import GameMap.*;
-import Entity.*;
 import Item.*;
-import Interfaces.*;
-
 import java.io.Serializable;
 
 import javax.swing.ImageIcon;
@@ -26,7 +23,7 @@ public class Teacher extends Entity implements Serializable {
     public Teacher(String name, int id, Room currentRoom){
         super(name, id, currentRoom);
         GameController.getInstance().debuggableObjects.put(id, this);
-        image = new ImageIcon("rsc/teacher.png").getImage();
+        image = new ImageIcon("./rsc/teacher.png").getImage();
     }
 
     /**
@@ -87,7 +84,7 @@ public class Teacher extends Entity implements Serializable {
     	if(gC.gameIsOver) return false;
 
     	roundIsOver = false;
-    	gC.currentEntity = this;
+    	gC.setCurrentEntity(this);
     	
     	//Ha a játék teszt módban van a tanárokkat is lehet irányítani.
     	if(gC.testmode) {
@@ -152,6 +149,7 @@ public class Teacher extends Entity implements Serializable {
 	 * Vissza adja tanár nevét
 	 * @return string
 	 */
+    @Override
     public String toString(){
         return "Entity.Teacher: " + getName();
     }
@@ -160,6 +158,7 @@ public class Teacher extends Entity implements Serializable {
 	 * Random nevet generál a benne statikusan tárolt vezeték és kereszt nevek ötvözésével
 	 * @return - random generált név
 	 */
+    @Override
 	public String randomName(){
 		String[] lastNames = {"Gajdos" , "Szirmay" , "Goldschmidt"};
 		String[] firstNames = {"Britney Spears", "Csanád", "Luigi", "Yuki", "Jordan"};

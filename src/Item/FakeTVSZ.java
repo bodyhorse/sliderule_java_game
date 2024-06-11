@@ -1,7 +1,6 @@
 package Item;
 
 import java.io.Serializable;
-import GameMap.*;
 import Entity.*;
 import GameLogic.*;
 import Interfaces.Debuggable;
@@ -10,6 +9,11 @@ import Interfaces.Debuggable;
 public class FakeTVSZ extends TVSZ implements Debuggable, Serializable {
 
     /**
+	 * Serial Versin ID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * Konstruktor, beállítja az ID változót
      * @param aID - A tárgy ID-ja
      */
@@ -51,15 +55,17 @@ public class FakeTVSZ extends TVSZ implements Debuggable, Serializable {
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
-    public String toString(){
-        return "Item.TVSZ: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "TVSZ #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
      * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.FakeTVSZ " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Item.FakeTVSZ " + this.getID() + " ----\n";
     }

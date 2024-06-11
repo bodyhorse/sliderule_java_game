@@ -5,14 +5,17 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 
 import GameLogic.*;
-import GameMap.*;
 import Entity.*;
-import Item.*;
 import Interfaces.*;
 
 public class TVSZ extends Item implements Debuggable, Serializable {
 
     /**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Az osztály konstruktora, beállítja a tárgy ID-ját.
      * @param aID - A tárgy ID-ja.
      */
@@ -20,7 +23,7 @@ public class TVSZ extends Item implements Debuggable, Serializable {
         super(aID);
         setDurability(3);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("rsc/TVSZ.png").getImage();
+        image = new ImageIcon("./rsc/TVSZ.png").getImage();
     }
     
     /**
@@ -30,9 +33,7 @@ public class TVSZ extends Item implements Debuggable, Serializable {
      */
     @Override
     public boolean pickUp(Entity e) {
-        boolean flag = e.pickUpItem(this);
-
-        return flag;
+        return e.pickUpItem(this);
     }
 
     /**
@@ -42,12 +43,7 @@ public class TVSZ extends Item implements Debuggable, Serializable {
      */
     @Override
     public boolean drop(Entity e) {    	
-    	boolean ret = e.dropItem(this);
-    	
-        return ret ;
-        
-
-    	
+    	return e.dropItem(this);
     }
     
     /**
@@ -72,15 +68,17 @@ public class TVSZ extends Item implements Debuggable, Serializable {
      * Visszatér egy Stringgel, az azonosítójával kiegészítve
      * @return - A String
      */
-    public String toString(){
-        return "Item.TVSZ: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "TVSZ #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
      * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.TVSZ " + this.getID() + " ----\ndurability : " + getDurability() + "\n---- Item.TVSZ " + this.getID() + " ----\n";
     }

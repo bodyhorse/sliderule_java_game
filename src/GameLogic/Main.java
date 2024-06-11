@@ -11,9 +11,9 @@ import java.io.Serializable;
 
 public class Main implements Serializable {
     public static void main(String[] args){
-		GameController.getInstance().mainMenu();
+		//GameController.getInstance().mainMenu();
 
-		//GameController.getInstance().initGui();
+		GameController.getInstance().initGui();
 
 	}
 }

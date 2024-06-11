@@ -2,21 +2,14 @@ package Entity;
 
 import GameLogic.*;
 import GameMap.*;
-import Entity.*;
 import Item.*;
-import Interfaces.*;
-import ViewModels.*;
-
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.ImageIcon;
 
 public class Janitor extends Entity implements Serializable {
 
     /**
-	 * 
+	 * Serial Version ID
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -29,7 +22,7 @@ public class Janitor extends Entity implements Serializable {
 	public Janitor(String n, int nID, Room curr){
 		super(n,nID,curr);
         GameController.getInstance().debuggableObjects.put(nID, this);
-        image = new ImageIcon("rsc/janitor.png").getImage();
+        image = new ImageIcon("./rsc/janitor.png").getImage();
 	}
 	
 	/**
@@ -107,7 +100,7 @@ public class Janitor extends Entity implements Serializable {
     	if(gC.gameIsOver) return false;
 
     	roundIsOver = false;
-    	gC.currentEntity = this;
+    	gC.setCurrentEntity(this);
     	
     	//Ha a játék teszt módban van a tanárokkat is lehet irányítani.
     	if(gC.testmode) {
@@ -172,6 +165,7 @@ public class Janitor extends Entity implements Serializable {
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
+	@Override
     public String toString(){
         return "Entity.Janitor: " + getName();
     }
@@ -180,6 +174,7 @@ public class Janitor extends Entity implements Serializable {
 	 * Random nevet generál a benne statikusan tárolt vezeték és kereszt nevek ötvözésével
 	 * @return - random generált név
 	 */
+	@Override
 	public String randomName(){
 		String[] lastNames = {"Kanalas", "Musk", "Lakatos", "Zuckerberg"};
 		String[] firstNames = {"Klárika", "Manyi néni", "Zoli bácsi", "Coby", "TechBro"};

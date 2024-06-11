@@ -5,13 +5,17 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 
 import GameLogic.*;
-import GameMap.*;
 import Entity.*;
-import Item.*;
 import Interfaces.*;
 
 public class Mask extends Item implements Debuggable, Serializable {
-    /**
+    
+	/**
+	 * Serial Version ID
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	/**
      * Megadja hogy az előző szoba mérgező volt-e
      */
     private boolean lastRoomWasToxic;
@@ -24,7 +28,7 @@ public class Mask extends Item implements Debuggable, Serializable {
         super(aID);
         setDurability(5);
         GameController.getInstance().debuggableObjects.put(aID, this);
-        image = new ImageIcon("rsc/mask.png").getImage();
+        image = new ImageIcon("./rsc/mask.png").getImage();
     }       
 
     /**
@@ -100,15 +104,17 @@ public class Mask extends Item implements Debuggable, Serializable {
      * Visszatér egy Stringgel ami a maga nevéből és az azonosítójából áll
      * @return - A String
      */
-    public String toString(){
-        return "Item.Mask: #" + Integer.toString(getID());
-    }
     @Override
+    public String toString(){
+        return "Mask #" + Integer.toString(getID());
+    }
+    
     /**
      * Debug szöveg generálása
      * @param cmdInput - ezzel tud ID-t ellenőrizni
      * @return - Az objektum állapotának szöveges reprezentációja
      */
+    @Override
     public String debug() {
         return "---- Item.Mask " + this.getID() + " ----\ndurability : " + getDurability() + "\nlastRoomWasToxic : " + lastRoomWasToxic +"\n---- Item.Mask " + this.getID() + " ----\n";
     }
