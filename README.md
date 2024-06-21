@@ -1,2 +1,3 @@
-This game is fully ready. Run it with futtatas.bat (it needs JRE installed). Minor bugs can occur.
-The documentation is quite huge, Page 438 and 441 might be intresting for you, also there is a lot of UML diagrams in the documentation.
+This game is fully ready, made by my team 00ff00 within a project for class in BME - VIK. 
+Run it with futtatas.bat (it needs JRE installed). Minor bugs can occur.
+The documentation is quite huge, there are a lot of UML diagrams in the documentation which might interst you.
